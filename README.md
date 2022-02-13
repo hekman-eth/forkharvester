@@ -10,11 +10,12 @@ It's very simple right now:
 1. After harvesting, if we are taking profits, sell to USDC and then use anyswap router to send to the `PROFIT_WALLET` on Polygon (you can configure the chain if you want to go somewhere else). I have my `PROFIT_WALLET` set to my Crypto.com wallet address.
 1. If we are not taking profits, stake to the masonry.
 
-Here's how it works:
+## Quickstart:
 
 1. `pip install -r requirements.txt`
-2. Set up your environment variables:
-```ADDRESS="WALLET_ADDRESS"
+2. Set up your environment variables (you can use a .env file for this):
+```
+ADDRESS="WALLET_ADDRESS"
 PROFIT_WALLET="ADDRESS OF THE WALLET YOU WANT TO TAKE PROFITS TO"
 PRIVATE_KEY="YOUR WALLET'S PRIVATE KEY -- MAKE SURE TO KEEP THIS SAFE!!!"
 PROVIDER='https://rpc.ankr.com/fantom'

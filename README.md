@@ -20,7 +20,8 @@ PROFIT_WALLET="ADDRESS OF THE WALLET YOU WANT TO TAKE PROFITS TO"
 PRIVATE_KEY="YOUR WALLET'S PRIVATE KEY -- MAKE SURE TO KEEP THIS SAFE!!!"
 PROVIDER='https://rpc.ankr.com/fantom'
 ``` 
-3. Run the script! `python forkharvester.py -h` to learn about the command line options:
+3. If you want to change the forks you're harvesting from, look at the `FORKS` dictionary in `forkharvester.py` and change it to suit your needs.
+4. Run the script! `python forkharvester.py -h` to learn about the command line options:
 ```
 usage: forkharvester.py [-h] [--take-profits] [--pool-minimum POOL_MINIMUM] [--profit-wallet PROFIT_WALLET] [--profit-chain PROFIT_CHAIN]
 
@@ -36,4 +37,4 @@ optional arguments:
   --profit-chain PROFIT_CHAIN
                         Bridge to the provided chain id. Default is 137 (Polygon).
 ```
-4. You could set this up as a cron job to run as often as you'd like, or just run it once or twice a day.
+5. You could set this up as a cron job to run as often as you'd like, or just run it once or twice a day.

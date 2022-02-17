@@ -16,9 +16,7 @@ load_dotenv()
 uni_logger = logging.getLogger("uniswap")
 uni_logger.setLevel(logging.DEBUG)
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename="harvester.log", level=logging.INFO)
-logging.Formatter(fmt='%(message)s')
+
 
 PROFIT_COIN = "USDC"
 WALLET_ADDRESS = os.environ.get('ADDRESS')
@@ -37,8 +35,13 @@ parser.add_argument('--profit-coin', type=str, default=PROFIT_COIN, dest='profit
                    help='The coin to take profits into.')
 parser.add_argument('--profit-pct', type=int, default=10, dest='profit_pct',
                    help='Percent of the profit to sell (in int format, e.g. 10 for 10%).')
+parser.add_argument('--log-file', type=str, default="harvester.log")
                    
 args = parser.parse_args()
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename=args.log_file, level=logging.ERROR)
+logging.Formatter(fmt='%(message)s')
 
 w3 = Web3(Web3.HTTPProvider(os.environ.get('PROVIDER')))
 w3.eth.set_gas_price_strategy(rpc_gas_price_strategy)
@@ -234,7 +237,6 @@ for k, v in FORKS.items():
     pending = w3.fromWei(_pending, 'ether')
     # This only works for USDC right now...
     if _pending == 0:
-        print("%s has no pending rewards" % k)
         continue
     _value = uniswap.get_price_input(v.shares_token_addr, profit_coins["USDC"], _pending)
     value = w3.fromWei(_value, 'picoether')
@@ -248,7 +250,6 @@ for k, v in FORKS.items():
         if _balance > 0:
             if args.profit_pct > 0:
                 profits = int((args.profit_pct / 100) * _balance)
-                logger.info("Selling {profits} out of {_balance}".format(profits=profits, _balance=_balance))
                 _balance = _balance - profits
                 # approve(v.shares_token_contract, _balance)
                 take_profit(v.shares_token_addr, profits)

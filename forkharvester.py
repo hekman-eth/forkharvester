@@ -143,17 +143,17 @@ def signTransaction(contract, **kwargs):
 def withdraw(contract, pid=1):
     txn = signTransaction(contract.functions.withdraw(pid, 0))
     txnHash = w3.eth.send_raw_transaction(txn.rawTransaction)
-    return w3.eth.waitForTransactionReceipt(txnHash)
+    return w3.eth.wait_for_transaction_receipt(txnHash)
 
 def stake(contract, balance):
     txn = signTransaction(contract.functions.stake(balance))
     txnHash = w3.eth.send_raw_transaction(txn.rawTransaction)
-    return w3.eth.waitForTransactionReceipt(txnHash)  
+    return w3.eth.wait_for_transaction_receipt(txnHash)  
 
 def claim(contract):
     txn = signTransaction(contract.functions.claimReward())
     txnHash = w3.eth.send_raw_transaction(txn.rawTransaction)
-    return w3.eth.waitForTransactionReceipt(txnHash)  
+    return w3.eth.wait_for_transaction_receipt(txnHash)  
     
 def check_balance(contract):
     if contract.address.lower() == constants.ETH_ADDRESS.lower():
@@ -167,12 +167,12 @@ def check_pending(contract, pool_id):
 def bridge(amount):
     txn = signTransaction(anyswap.functions.anySwapOutUnderlying(ANYUSDC, PROFIT_WALLET, amount, PROFIT_CHAIN))
     txnHash = w3.eth.send_raw_transaction(txn.rawTransaction)
-    return w3.eth.waitForTransactionReceipt(txnHash)  
+    return w3.eth.wait_for_transaction_receipt(txnHash)  
 
 def approve(token, amount):
     txn = signTransaction(token.functions.approve(spooky.address, amount))
     txnHash = w3.eth.send_raw_transaction(txn.rawTransaction)
-    return w3.eth.waitForTransactionReceipt(txnHash)
+    return w3.eth.wait_for_transaction_receipt(txnHash)
 
 def take_profit(token_addr, profits):
     # Double-check we have the right balance in our token_addr
@@ -180,7 +180,7 @@ def take_profit(token_addr, profits):
     if _balance < profits:
         profits = _balance
 
-    w3.eth.waitForTransactionReceipt(
+    w3.eth.wait_for_transaction_receipt(
         uniswap.make_trade(
             token_addr, 
             profit_coins[args.profit_coin], 
@@ -201,7 +201,7 @@ def check_spooky_approval(token, _amount):
 
 def compound(fork, amount):
     # Sell half
-    w3.eth.waitForTransactionReceipt(
+    w3.eth.wait_for_transaction_receipt(
         uniswap.make_trade(
             fork.shares_token_addr,
             fork.lp_partner,

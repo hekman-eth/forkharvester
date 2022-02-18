@@ -257,10 +257,12 @@ for k, v in FORKS.items():
                     remainder_balance = uniswap.get_token_balance(v.shares_token_addr)
                     if remainder_balance > 0:
                         compound(v, remainder_balance)
+
+            profits_value = uniswap.get_price_input(v.shares_token_addr, profit_coins[args.profit_coin], profits)
             
             logger.info("{date},{k},{pending},{value},{pcoin},{profits}".format(
                 pending=pending, k=k, value=value, pcoin=args.profit_coin, date=datetime.now().isoformat(), 
-                profits=profits))
+                profits=profits_value))
 
 # Transfer all USDC to Crypto.com.
 # BE CAREFUL! If you do not want to transfer everything, you might want to use a different

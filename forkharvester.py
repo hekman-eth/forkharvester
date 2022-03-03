@@ -72,7 +72,10 @@ with open("abis/SPOOKY_ROUTER.abi") as f:
 class Fork:
     def __init__(self, shares_token_addr, masonry_addr, shares_reward_addr, token_addr, pid, lp_partner=None) -> None:
         self.shares_token_addr = Web3.toChecksumAddress(shares_token_addr)
-        self.masonry_addr = Web3.toChecksumAddress(masonry_addr)
+        try:
+            self.masonry_addr = Web3.toChecksumAddress(masonry_addr)
+        except:
+            self.masonry_addr = None
         self.shares_reward_addr = Web3.toChecksumAddress(shares_reward_addr)
         self.token_addr = Web3.toChecksumAddress(token_addr)
         self.pid = pid
@@ -107,6 +110,21 @@ class BasedFork(Fork):
                          pid,
                          lp_partner)
 
+class Rare(Fork):
+    # A Fork that is tailored to compound back into the SHARES LP
+    def __init__(self, shares_token_addr="0xB835631824ED68D84c5f41C231f3C2b6C2D709d5", 
+                 masonry_addr="", 
+                 shares_reward_addr="0x27cd5a4c9e797931b79c370bc0bf1ce819b4f65d", 
+                 token_addr="0x428F578F88351487f3D9e5F3F39f66976e5588C2", 
+                 pid=0, 
+                 lp_partner=uniswap.get_weth_address()) -> None:
+        super().__init__(shares_token_addr, 
+                         masonry_addr,
+                         shares_reward_addr,
+                         token_addr,
+                         pid,
+                         lp_partner)
+
 # Add the forks you want to harvest here. All of these addresses currently work.    
 FORKS = {
     # '2SHARES': Fork("0xc54A1684fD1bef1f077a336E6be4Bd9a3096a6Ca", "0x627a83b6f8743c89d58f17f994d3f7f69c32f461", "0x8d426eb8c7e19b8f13817b07c0ab55d30d209a96", 1),
@@ -114,10 +132,13 @@ FORKS = {
     # '3SHARES': Fork("0x6437adac543583c4b31bf0323a0870430f5cc2e7", "0x32c7bb562e7ecc15bed153ea731bc371dc7ff379", "0x1040085d268253e8d4f932399a8019f527e58d04", 2),
     # 'TOMB':    Fork("0x4cdF39285D7Ca8eB3f090fDA0C069ba5F4145B37", "0x8764DE60236C5843D9faEB1B638fbCE962773B67", "0xcc0a87F7e7c693042a9Cc703661F5060c80ACb43", 1),
 
-    'BASED-TOMB':  BasedFork(pid=0),
-    'BSHARE-FTM':  BasedFork(pid=1),
-    'BASED-GEIST': BasedFork(pid=3),
-    'BASED-TRI':   BasedFork(pid=4),
+    # 'BASED-TOMB':  BasedFork(pid=0),
+    # 'BSHARE-FTM':  BasedFork(pid=1),
+    # 'BASED-GEIST': BasedFork(pid=3),
+    # 'BASED-TRI':   BasedFork(pid=4),
+    'RARE-BASED': Rare(pid=0),
+    'RSHARE-FTM': Rare(pid=1),
+    'RARE-RSHARE': Rare(pid=2)
 }
 
 profit_coins = {
@@ -132,7 +153,8 @@ def signTransaction(contract, **kwargs):
     xDict = {
         "nonce": w3.eth.get_transaction_count(WALLET_ADDRESS),
         "from": w3.eth.default_account,
-        "chainId": 250
+        "chainId": 250,
+        "gasPrice": w3.toWei(7000, "gwei")
     }
     if kwargs:
         xDict.update(**kwargs)

@@ -12,11 +12,8 @@ from datetime import datetime
 
 load_dotenv()
 
-
 uni_logger = logging.getLogger("uniswap")
-uni_logger.setLevel(logging.DEBUG)
-
-
+uni_logger.setLevel(logging.ERROR)
 
 PROFIT_COIN = "USDC"
 WALLET_ADDRESS = os.environ.get('ADDRESS')
@@ -40,7 +37,7 @@ parser.add_argument('--log-file', type=str, default="harvester.log")
 args = parser.parse_args()
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename=args.log_file, level=logging.ERROR)
+logging.basicConfig(filename=args.log_file, level=logging.INFO)
 logging.Formatter(fmt='%(message)s')
 
 w3 = Web3(Web3.HTTPProvider(os.environ.get('PROVIDER')))
@@ -221,6 +218,15 @@ def check_spooky_approval(token, _amount):
     else:
         return False
 
+def top_up_ftm_if_necessary():
+    ftm_balance = uniswap.get_eth_balance(WALLET_ADDRESS)
+    if ftm_balance <= 1:
+        uniswap.make_trade(
+            usdc_contract.address,
+            uniswap.get_eth_balance(),
+            20
+        )
+
 def compound(fork, amount):
     # Sell half
     w3.eth.wait_for_transaction_receipt(
@@ -253,6 +259,8 @@ def compound(fork, amount):
         signTransaction(fork.rewards_contract.functions.deposit(fork.pid, lp_balance)).rawTransaction
     )
 
+top_up_ftm_if_necessary()
+
 for k, v in FORKS.items():  
     # # Withdraw from LP
     _pending = check_pending(v.rewards_contract, v.pid)
@@ -276,9 +284,8 @@ for k, v in FORKS.items():
                 # approve(v.shares_token_contract, _balance)
                 take_profit(v.shares_token_addr, profits)
                 if _balance and v.lp_partner:
-                    remainder_balance = uniswap.get_token_balance(v.shares_token_addr)
-                    if remainder_balance > 0:
-                        compound(v, remainder_balance)
+                    if _balance > 0:
+                        compound(v, _balance)
 
             profits_value = uniswap.get_price_input(v.shares_token_addr, profit_coins[args.profit_coin], profits)
             
